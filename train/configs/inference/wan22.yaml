@@ -1,0 +1,6 @@
+warp_denoising_step: true
+model_name: Wan2.2-TI2V-5B
+denoising_step_list:
+- 1000
+- 750
+- 500
