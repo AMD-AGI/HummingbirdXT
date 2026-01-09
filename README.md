@@ -1,11 +1,97 @@
-
-# Hummingbird-XT: Efficient DiT-based Text-to-Video Models on AMD GPUs
+<div align="center">
+  <br>
+  <br>
+  <h1>Bridging the Last Mile: Deploying Hummingbird-XT for Efficient Video Generation on AMD Consumer-Grade Platforms</h1>
+<a href='https://huggingface.co/amd/HummingbirdXT'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Model-blue'></a>
+<a href='https://rocm.blogs.amd.com/artificial-intelligence/hummingbirdxt/README.html'><img src='https://img.shields.io/badge/Technical-Blog-red'></a> 
+</div>
 
 This repository presents an **efficient acceleration pipeline for Diffusion Transformer (DiT) based video generation models**, optimized for **AMD client-grade GPUs**, including **Navi48 dGPUs** and **Strix Halo iGPUs**.
 
 Built upon this pipeline, we introduce **Hummingbird-XT**, a new family of DiT-based text-to-video models derived from **Wan2.2-5B**, achieving high-quality video generation with significantly reduced inference cost.
 
----
+
+<table style="width: 90%; max-width: 900px; margin: 20px auto; border-collapse: separate; border-spacing: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; font-family: Arial, sans-serif;">
+  <thead style="background-color: #f5f5f5;">
+    <tr>
+      <th style="width: 30%; padding: 12px; text-align: left; font-weight: bold;">Caption</th>
+      <th style="width: 70%; padding: 12px; text-align: center; font-weight: bold;">Video</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-top: 1px solid #ddd;">
+      <td style="padding: 12px; max-height: 150px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; vertical-align: top;">
+        Animated scene features a close-up of a short fluffy monster kneeling beside a melting red candle. The art style is 3D and realistic, with a focus on lighting and texture. The mood of the painting is one of wonder and curiosity, as the monster gazes at the flame with wide eyes and open mouth. Its pose and expression convey a sense of innocence and playfulness, as if it is exploring the world around it for the first time. The use of warm colors and dramatic lighting further enhances the cozy atmosphere of the image.
+      </td>
+      <td style="padding: 12px; text-align: center;">
+        <video src="https://github.com/user-attachments/assets/97beef02-ed76-4635-8b36-a296c227cab1" width="100%" controls autoplay loop muted style="border-radius: 6px;"></video>
+      </td>
+    </tr>
+    <tr style="border-top: 1px solid #ddd;">
+      <td style="padding: 12px; max-height: 150px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; vertical-align: top;">
+        A stylish woman walks down a Tokyo street filled with warm glowing neon and animated city signage. She wears a black leather jacket, a long red dress, and black boots, and carries a black purse. She wears sunglasses and red lipstick. She walks confidently and casually. The street is damp and reflective, creating a mirror effect of the colorful lights. Many pedestrians walk about.
+      </td>
+      <td style="padding: 12px; text-align: center;">
+        <video src="https://github.com/user-attachments/assets/6698d25f-e839-4acd-b5cd-af8f325d37fc" width="100%" controls autoplay loop muted style="border-radius: 6px;"></video>
+      </td>
+    </tr>
+    <tr style="border-top: 1px solid #ddd;">
+      <td style="padding: 12px; max-height: 150px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; vertical-align: top;">
+        The young East Asian man with short black hair, fair skin, and monolid eyes looks ahead. A young East Asian woman with long black hair and fair skin turns to smile warmly at him. The background is blurred, focusing on their shared gaze. Realistic cinematic style.
+      </td>
+      <td style="padding: 12px; text-align: center;">
+        <video src="https://github.com/user-attachments/assets/064c242a-4ee5-429e-9a9b-9b12df076c96" width="100%" controls autoplay loop muted style="border-radius: 6px;"></video>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+
+
+
+
+<p align="center">Hummingbird-XT Text-to-Video Showcases</p>
+
+<table style="width: 90%; max-width: 900px; margin: 20px auto; border-collapse: separate; border-spacing: 0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; font-family: Arial, sans-serif;">
+  <thead style="background-color: #f5f5f5;">
+    <tr>
+      <th style="width: 30%; padding: 12px; text-align: left; font-weight: bold;">Caption</th>
+      <th style="width: 70%; padding: 12px; text-align: center; font-weight: bold;">Video</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-top: 1px solid #ddd;">
+      <td style="padding: 12px; max-height: 150px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; vertical-align: top;">
+        a back-view close-up focusing on the runner’s feet striking the track. Only subtle movement occurs—his steps land firmly, kicking a small amount of dust or rubber granules. The camera stays low and straight-on behind him, following smoothly with minimal shake. The sunlight bright with long shadows stretching forward.
+      </td>
+      <td style="padding: 12px; text-align: center;">
+        <video src="https://github.com/user-attachments/assets/d01d9fe7-bebe-4f0b-902a-3e913d93df1d" width="100%" controls autoplay loop muted style="border-radius: 6px;"></video>
+      </td>
+    </tr>
+    <tr style="border-top: 1px solid #ddd;">
+      <td style="padding: 12px; max-height: 150px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; vertical-align: top;">
+        A graceful woman stands under a majestic sandstone arch, forming a small heart shape with her fingers close to the camera while smiling warmly and radiating joy. Behind her, a smooth and elegant fountain rises gracefully, its water reflecting the warm, inviting courtyard walls in a mirror-like fashion.
+      </td>
+      <td style="padding: 12px; text-align: center;">
+        <video src="https://github.com/user-attachments/assets/d4197430-13e7-46d9-b2a9-80df0aee491d" width="100%" controls autoplay loop muted style="border-radius: 6px;"></video>
+      </td>
+    </tr>
+    <tr style="border-top: 1px solid #ddd;">
+      <td style="padding: 12px; max-height: 150px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; vertical-align: top;">
+        舞台上，一名男子弹奏着一把由闪电构成的电吉他。随着音乐渐强，火花在他周围噼啪作响。突然，耀眼的光芒转为暗红色，他的双眼发出>幽光，黑色的翅膀从背后羽化而出。他的皮肤变得黝黑，闪电缠绕>着他的身体，他化身为一个恶魔，伫立在翻滚的烟雾和雷鸣之中。
+      </td>
+      <td style="padding: 12px; text-align: center;">
+        <video src="https://github.com/user-attachments/assets/7fc77ead-cc5e-4a98-b678-21ed80b91e8c" width="100%" controls autoplay loop muted style="border-radius: 6px;"></video>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p align="center">Hummingbird-XT Image-to-Video Showcases</p>
+
+
+
+
+
 
 ## 🔍 Overview
 
@@ -107,4 +193,10 @@ cd infer
 bash convert_model.sh # change the model path to your path
 bash run_i2v.sh # Image-to-Video (I2V)
 bash run_t2v.sh # Image-to-Video (T2V)
+```
+**Long Video Generation**
+
+```
+cd long_video
+bsah run.sh
 ```
