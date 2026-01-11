@@ -10,7 +10,7 @@ This repository presents an **efficient acceleration pipeline for Diffusion Tran
 
 Built upon this pipeline, we introduce **Hummingbird-XT**, a new family of DiT-based text-to-video models derived from **Wan2.2-5B**, achieving high-quality video generation with significantly reduced inference cost.
 
-
+<p align="center"><strong>Hummingbird-XT Text-to-Video Showcases</strong></p>
 <table style="width:100%; table-layout:fixed; border-collapse:collapse;">
   <thead>
     <tr>
@@ -18,7 +18,6 @@ Built upon this pipeline, we introduce **Hummingbird-XT**, a new family of DiT-b
       <th style="width:60%; text-align:center;">Video</th>
     </tr>
   </thead>
-
   <!-- Row 1 -->
   <tr>
     <td style="vertical-align:top; padding:12px;">
@@ -46,7 +45,6 @@ The young East Asian man with short black hair, fair skin, and monolid eyes look
       </video>
     </td>
   </tr>
-
   <!-- Row 2 -->
   <tr>
     <td style="vertical-align:top; padding:12px;">
@@ -74,7 +72,6 @@ The young East Asian man with short black hair, fair skin, and monolid eyes look
       </video>
     </td>
   </tr>
-
   <!-- Row 3 -->
   <tr>
     <td style="vertical-align:top; padding:12px;">
@@ -104,9 +101,8 @@ The young East Asian man with short black hair, fair skin, and monolid eyes look
   </tr>
 </table>
 
-<p align="center">Hummingbird-XT Text-to-Video Showcases</p>
 
-
+<p align="center"><strong>Hummingbird-XT Image-to-Video Showcases</strong></p>
 <table style="width:100%; table-layout:fixed; border-collapse:collapse;">
   <thead>
     <tr>
@@ -212,8 +208,96 @@ The young East Asian man with short black hair, fair skin, and monolid eyes look
 </table>
 
 
-<p align="center">Hummingbird-XT Image-to-Video Showcases</p>
-
+<p align="center"><strong>Hummingbird-XTX 20s videos Showcases</strong></p>
+<table style="width:100%; table-layout:fixed; border-collapse:collapse;">
+  <thead>
+    <tr>
+      <th style="width:40%; text-align:center;">Caption</th>
+      <th style="width:60%; text-align:center;">Video</th>
+    </tr>
+  </thead>
+  <!-- Row 1 -->
+  <tr>
+    <td style="vertical-align:top; padding:12px;">
+      <details>
+        <summary style="cursor:pointer; font-weight:600;">
+          Text Prompt (click to expand)
+        </summary>
+        <div style="
+          max-height:260px;
+          overflow:hidden;
+          margin-top:8px;
+          line-height:1.55;
+          text-align:justify;
+        ">
+Several giant wooly mammoths approach treading through a snowy meadow, their long wooly fur lightly blows in the wind as they walk, snow covered trees and dramatic snow capped mountains in the distance, mid afternoon light with wispy clouds and a sun high in the distance creates a warm glow, the low camera view is stunning capturing the large furry mammal with beautiful photography, depth of field.
+        </div>
+      </details>
+    </td>
+    <td style="padding:12px;">
+      <video src="https://github.com/user-attachments/assets/8dcab976-6ac6-419e-82f9-71a0b8d8fe7e"
+             controls
+             muted
+             loop
+             style="width:100%; border-radius:8px;">
+      </video>
+    </td>
+  </tr>
+  <!-- Row 2 -->
+  <tr>
+    <td style="vertical-align:top; padding:12px;">
+      <details>
+        <summary style="cursor:pointer; font-weight:600;">
+          Text Prompt (click to expand)
+        </summary>
+        <div style="
+          max-height:260px;
+          overflow:hidden;
+          margin-top:8px;
+          line-height:1.55;
+          text-align:justify;
+        ">
+           A movie trailer featuring the adventures of the 30 year old space man wearing a red wool knitted motorcycle helmet, blue sky, salt desert, cinematic style, shot on 35mm film, vivid colors.
+        </div>
+      </details>
+    </td>
+    <td style="padding:12px;">
+      <video src="https://github.com/user-attachments/assets/6c1e0e92-8521-4402-8652-35b87efac7ed"
+             controls
+             muted
+             loop
+             style="width:100%; border-radius:8px;">
+      </video>
+    </td>
+  </tr>
+  <!-- Row 3 -->
+  <tr>
+    <td style="vertical-align:top; padding:12px;">
+      <details>
+        <summary style="cursor:pointer; font-weight:600;">
+          Text Prompt (click to expand)
+        </summary>
+        <div style="
+          max-height:260px;
+          overflow:hidden;
+          margin-top:8px;
+          line-height:1.55;
+          text-align:justify;
+        ">
+      A cinematic wide portrait of a man with his face lit by the glow of a TV.
+        </div>
+      </details>
+    </td>
+    <td style="padding:12px;">
+      <video src="https://github.com/user-attachments/assets/49465535-34b5-49f4-925c-ca3379b92dc1"
+             controls
+             muted
+             loop
+             style="width:100%; border-radius:8px;">
+      </video>
+    </td>
+  </tr>
+</table>
 
 
 
