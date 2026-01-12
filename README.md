@@ -515,4 +515,4 @@ Our codebase builds on [Wan 2.1](https://github.com/Wan-Video/Wan2.1), [Wan 2.2]
 ---
 
 ## 📋 Citations
-Feel free to cite our Hummingbird models and give us a star⭐, if you find our work helpful. Thank you.
+Feel free to cite our Hummingbird-XT models and give us a star⭐, if you find our work helpful. Thank you.
