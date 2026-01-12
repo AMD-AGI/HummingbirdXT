@@ -303,7 +303,7 @@ Several giant wooly mammoths approach treading through a snowy meadow, their lon
 ---
 
 ## 📝 News
-- __[2026.01.09]__: 🔥🔥Release the full code and pre-trained weight of HummingbirdXT.!
+- __[2026.01.09]__: 🔥🔥Release the full code and pre-trained weight of HummingbirdXT!
 - __[2026.01.08]__: 🔥🔥Release our Blog: [Bridging the Last Mile: Deploying Hummingbird-XT for Efficient Video Generation on AMD Consumer-Grade Platforms](https://rocm.blogs.amd.com/artificial-intelligence/hummingbirdxt/README.html) !
 
 ---
@@ -320,6 +320,16 @@ Several giant wooly mammoths approach treading through a snowy meadow, their lon
 - Extends Hummingbird-XT to support **efficient long video generation**
 - Improves temporal consistency across extended sequences
 - Suitable for long-form generation scenarios
+
+**Lightweight VAE Decoder**
+
+- Lightweight and efficient VAE decoder 
+
+- Introduces **3D DW Conv** to reduce redundancy in original 3D Conv 
+
+- Achieves **14x speedup** for decoding and **reduce memory usage by 4x** 
+
+- Preserves competitive reconstruction and generation quality 
 ---
 
 ## ⚙️ Installation
@@ -372,6 +382,11 @@ You can download the weights for all our models from our models' huggingface: [a
 cd infer
 bash run_t2v.sh # for text-to-video  task
 bash run_i2v.sh # for image-to-video task
+```
+To use Lightweight VAE decoder in generation, add the below parameters after running command in `run_t2v.sh` and `run_i2v.sh`:
+
+```bash
+--vae_model ${VAE_PATH_ROOT}/wan22_v1_tiling_16_12 --t_block_size 16 --t_stride 12  
 ```
 
 ### HummingbirdXTX Long Video Generation
@@ -482,7 +497,7 @@ Full training code: [AMD-AIG-AIMA/HummingbirdXT](https://github.com/AMD-AGI/Humm
 
 Related work on diffusion models by the AMD team:
 
-- [AMD Hummingbird-0.9B: An Efficient Text-to-Video Diffusion Model with 4-Step Inferencing](https://rocm.blogs.amd.com/artificial-intelligence/image-to-video/README.html)
+- [AMD Hummingbird-0.9B: An Efficient Text-to-Video Diffusion Model with 4-Step Inferencing](https://www.amd.com/en/developer/resources/technical-articles/amd-hummingbird-0-9b-text-to-video-diffusion-model-with-4-step-inferencing.html)
 - [AMD Hummingbird Image to Video: A Lightweight Feedback-Driven Model for Efficient Image-to-Video Generation](https://rocm.blogs.amd.com/artificial-intelligence/image-to-video/README.html)
 
 Please refer to the following resources to get started with training on AMD ROCm™ software:
