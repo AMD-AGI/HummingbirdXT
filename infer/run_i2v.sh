@@ -1,6 +1,6 @@
 #!/bin/bash
 # Copyright(C) [2026] Advanced Micro Devices, Inc. All rights reserved.
-CUDA_VISIBLE_DEVICES=0 python3 examples/wan2.2/predict_ti2v_single.py \
+ROCR_VISIBLE_DEVICES=0 python3 examples/wan2.2/predict_ti2v_single.py \
   --model_path models/hm_2.2_5B/ \
   --outdir output \
   --seed 123 --shift 10 --st 0 --ed 20 \

@@ -1,0 +1,55 @@
+# generator_ckpt: checkpoints/ode_init.pt
+generator_fsdp_wrap_strategy: size
+# real_score_fsdp_wrap_strategy: size  # Unused in ODE trainer
+# fake_score_fsdp_wrap_strategy: size  # Unused in ODE trainer
+real_name: Wan2.1-T2V-1.3B  # Unused in ODE trainer
+text_encoder_fsdp_wrap_strategy: size
+denoising_step_list:
+- 1000
+- 750
+- 500
+- 250
+warp_denoising_step: true # need to remove - 0 in denoising_step_list if warp_denoising_step is true
+ts_schedule: false  # Unused in ODE trainer
+num_train_timestep: 1000  # Unused in ODE trainer
+timestep_shift: 5.0
+guidance_scale: 3.0  # Unused in ODE trainer
+denoising_loss_type: flow  # Unused in ODE trainer
+mixed_precision: true
+seed: 0
+wandb_host: https://api.wandb.ai
+wandb_key: WANDB_KEY
+wandb_entity: ENTITY
+wandb_project: PROJECT_NAME
+wandb_name: WANDB_NAME
+sharding_strategy: hybrid_full
+lr: 2.0e-06
+# lr_critic: 4.0e-07
+beta1: 0.0
+beta2: 0.999
+# beta1_critic: 0.0
+# beta2_critic: 0.999
+data_path: /wekafs/hecui102/codelib/Infinite-Forcing/data/wan_22_data_48_channels_720p_30frames
+batch_size: 4
+ema_weight: 0.99  # Unused in ODE trainer
+ema_start_step: 200  # Unused in ODE trainer
+total_batch_size: 24  # batch_size * num_gpus = 2 * 6 = 12
+log_iters: 50
+max_steps: 3000
+# gradient_accumulation_step: 1  # Unused in ODE trainer (no gradient accumulation)
+negative_prompt: '色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走'  # Unused in ODE trainer
+dfake_gen_update_ratio: 5  # Unused in ODE trainer
+image_or_video_shape:  # Unused in ODE trainer
+- 1
+- 21
+- 16
+- 60
+- 104
+distribution_loss: ode
+trainer: ode
+gradient_checkpointing: true
+num_frame_per_block: 3
+load_raw_video: false
+no_visualize: false
+model_kwargs:
+  timestep_shift: 5.0
