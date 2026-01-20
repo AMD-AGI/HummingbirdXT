@@ -1,3 +1,4 @@
+# download from https://github.com/aigc-apps/VideoX-Fun
 import inspect
 import math
 from dataclasses import dataclass

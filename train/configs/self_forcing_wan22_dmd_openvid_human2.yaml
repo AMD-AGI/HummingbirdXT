@@ -22,11 +22,11 @@ timestep_shift: 5.0
 guidance_scale: 6.0
 denoising_loss_type: x0
 mixed_precision: true
-seed: 8987132
+seed: 0
 wandb_key: your key
-wandb_entity: your entity
-wandb_project: TI2V_dmd_325_12_3
-wandb_host: https://api.wandb.ai
+wandb_entity: your key
+wandb_project: TI2V_dmd_5B
+wandb_host: your key
 sharding_strategy: full
 lr: 5.0e-07
 lr_critic: 1.0e-07

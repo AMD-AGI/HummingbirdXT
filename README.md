@@ -383,6 +383,7 @@ cd infer
 bash run_t2v.sh # for text-to-video  task
 bash run_i2v.sh # for image-to-video task
 ```
+If you use docker, you should make sure `diffusers==0.35.0`.
 To use Lightweight VAE decoder in generation, add the below parameters after running command in `run_t2v.sh` and `run_i2v.sh`:
 
 ```bash

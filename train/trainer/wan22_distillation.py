@@ -1,3 +1,4 @@
+# download from https://github.com/guandeh17/Self-Forcing
 import gc
 import logging
 
@@ -9,7 +10,7 @@ from utils.misc import (
 )
 import torch.distributed as dist
 from omegaconf import OmegaConf
-from model import CausVid, DMD, SiD
+from model import DMD
 import torch
 import wandb
 import time
@@ -57,14 +58,7 @@ class Trainer:
         self.output_path = config.logdir
 
         # Step 2: Initialize the model and optimizer
-        if config.distribution_loss == "causvid":
-            self.model = CausVid(config, device=self.device)
-        elif config.distribution_loss == "dmd":
-            self.model = DMD(config, device=self.device)
-        elif config.distribution_loss == "sid":
-            self.model = SiD(config, device=self.device)
-        else:
-            raise ValueError("Invalid distribution matching loss")
+        self.model = DMD(config, device=self.device)
 
         # Resume Training from Latest Checkpoint
         pretrained_ckpt_path, self.step = self.load(self.output_path)
