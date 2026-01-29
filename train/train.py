@@ -6,8 +6,7 @@ import wandb
 
 from trainer import Wan22ScoreDistillationTrainer
 
-
-def main():
+def get_arg_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config_path", type=str, required=True)
     parser.add_argument("--no_save", action="store_true")
@@ -17,7 +16,10 @@ def main():
     parser.add_argument("--disable-wandb", action="store_true")
     parser.add_argument("--data_path", type=str, default=None, help="Path to the dataset")
     parser.add_argument("--debug", action="store_true", help="Run in debug mode, no saving or visualization")
+    return parser
 
+def main():
+    parser = get_arg_parser()
     args = parser.parse_args()
 
     config = OmegaConf.load(args.config_path)

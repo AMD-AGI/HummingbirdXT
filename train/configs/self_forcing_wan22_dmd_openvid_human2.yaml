@@ -59,3 +59,4 @@ load_raw_video: false
 model_kwargs:
   timestep_shift: 5.0
 initial_step: 0
+wan_model_folder: wan_models
