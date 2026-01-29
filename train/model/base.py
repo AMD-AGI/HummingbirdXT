@@ -33,28 +33,32 @@ class BaseModel(nn.Module):
 
         self.generator = WanDiffusionWrapper(
             **getattr(args, "model_kwargs", {}),
+            model_folder=args.wan_model_folder,
             model_name=self.generator_name,
             is_causal=self.is_causal
         )
         self.generator.model.requires_grad_(True)
 
-        self.real_score = WanDiffusionWrapper(model_name=self.real_model_name, is_causal=False)
+        self.real_score = WanDiffusionWrapper(model_folder=args.wan_model_folder,
+            model_name=self.real_model_name, is_causal=False)
         self.real_score.model.requires_grad_(False)
 
-        self.fake_score = WanDiffusionWrapper(model_name=self.fake_model_name, is_causal=False)
+        self.fake_score = WanDiffusionWrapper(model_folder=args.wan_model_folder,
+            model_name=self.fake_model_name, is_causal=False)
         self.fake_score.model.requires_grad_(True)
 
-        self.text_encoder = WanTextEncoder(model_name=self.generator_name)
+        self.text_encoder = WanTextEncoder(model_folder=args.wan_model_folder,
+            model_name=self.generator_name)
         self.text_encoder.requires_grad_(False)
 
         if "2.2" in self.generator_name:
-            self.vae = Wan2_2_VAEWrapper()
+            self.vae = Wan2_2_VAEWrapper(model_folder=args.wan_model_folder)
         else:
-            self.vae = WanVAEWrapper(model_name=self.generator_name)
+            self.vae = WanVAEWrapper(model_folder=args.wan_model_folder, model_name=self.generator_name)
         self.vae.requires_grad_(False)
 
         if self.i2v:
-            self.image_encoder = WanCLIPEncoder(model_name=self.generator_name)
+            self.image_encoder = WanCLIPEncoder(model_folder=args.wan_model_folder, model_name=self.generator_name)
             self.image_encoder.requires_grad_(False)
 
         self.scheduler = self.generator.get_scheduler()

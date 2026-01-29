@@ -421,8 +421,7 @@ class Wan22Model(ModelMixin, ConfigMixin):
         # initialize weights
         self.init_weights()
 
-    def _set_gradient_checkpointing(self, module, value=False):
-        self.gradient_checkpointing = value
+        self.gradient_checkpointing = False
 
     def forward(
         self,
