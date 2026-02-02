@@ -421,7 +421,20 @@ class Wan22Model(ModelMixin, ConfigMixin):
         # initialize weights
         self.init_weights()
 
+        # default value is False
         self.gradient_checkpointing = False
+
+    def _set_gradient_checkpointing(self, *args, **kwargs):
+
+        # for diffusers version >= 0.33.0, directly call parent's _set_gradient_checkpointing
+        parent_method = getattr(super(), "_set_gradient_checkpointing", None)
+
+        if callable(parent_method):
+            return parent_method(*args, **kwargs)
+
+        # diffusers version < 0.33.0
+        assert "value" in kwargs, "_set_gradient_checkpointing expects a 'value' argument"
+        self.gradient_checkpointing = kwargs["value"]
 
     def forward(
         self,
