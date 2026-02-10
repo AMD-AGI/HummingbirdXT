@@ -1,4 +1,8 @@
-# download from https://github.com/guandeh17/Self-Forcing/tree/main
+# Modifications Copyright(C)[2026] Advanced Micro Devices, Inc. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0 
+# ------------------------------------------------------------------------------------
+# Licensed under the Apache-2.0 License
+# ------------------------------------------------------------------------------------
 from utils.wan_wrapper import WanDiffusionWrapper
 from utils.scheduler import SchedulerInterface
 from typing import List, Optional
@@ -17,6 +21,7 @@ class SelfForcingTrainingPipeline:
                  last_step_only: bool = False,
                  num_max_frames: int = 21,
                  context_noise: int = 0,
+                 model_name: str = "Wan2.2-TI2V-5B",
                  **kwargs):
         super().__init__()
         self.scheduler = scheduler
@@ -27,7 +32,10 @@ class SelfForcingTrainingPipeline:
 
         # Wan specific hyperparameters
         self.num_transformer_blocks = 30
-        self.frame_seq_length = 1560
+        if "2.2" in model_name:
+            self.frame_seq_length = 880  # Wan2.2-TI2V-5B: latents [B, F, 48, 44, 80] -> after patch (44//2)*(80//2) = 22*40 = 880
+        else:
+            self.frame_seq_length = 1560 # Wan2.1 VAE: latents [B, F, 16, 60, 104] -> after patch (60//2)*(104//2) = 30*52 = 1560
         self.num_frame_per_block = num_frame_per_block
         self.context_noise = context_noise
         self.i2v = False
@@ -90,28 +98,7 @@ class SelfForcingTrainingPipeline:
         self._initialize_crossattn_cache(
             batch_size=batch_size, dtype=noise.dtype, device=noise.device
         )
-        # if self.kv_cache1 is None:
-        #     self._initialize_kv_cache(
-        #         batch_size=batch_size,
-        #         dtype=noise.dtype,
-        #         device=noise.device,
-        #     )
-        #     self._initialize_crossattn_cache(
-        #         batch_size=batch_size,
-        #         dtype=noise.dtype,
-        #         device=noise.device
-        #     )
-        # else:
-        #     # reset cross attn cache
-        #     for block_index in range(self.num_transformer_blocks):
-        #         self.crossattn_cache[block_index]["is_init"] = False
-        #     # reset kv cache
-        #     for block_index in range(len(self.kv_cache1)):
-        #         self.kv_cache1[block_index]["global_end_index"] = torch.tensor(
-        #             [0], dtype=torch.long, device=noise.device)
-        #         self.kv_cache1[block_index]["local_end_index"] = torch.tensor(
-        #             [0], dtype=torch.long, device=noise.device)
-
+ 
         # Step 2: Cache context feature
         current_start_frame = 0
         if initial_latent is not None:
@@ -242,11 +229,15 @@ class SelfForcingTrainingPipeline:
         Initialize a Per-GPU KV cache for the Wan model.
         """
         kv_cache1 = []
+        
+        # Get num_heads and head_dim from the model dynamically
+        num_heads = self.generator.model.num_heads
+        head_dim = self.generator.model.dim // num_heads
 
         for _ in range(self.num_transformer_blocks):
             kv_cache1.append({
-                "k": torch.zeros([batch_size, self.kv_cache_size, 12, 128], dtype=dtype, device=device),
-                "v": torch.zeros([batch_size, self.kv_cache_size, 12, 128], dtype=dtype, device=device),
+                "k": torch.zeros([batch_size, self.kv_cache_size, num_heads, head_dim], dtype=dtype, device=device),
+                "v": torch.zeros([batch_size, self.kv_cache_size, num_heads, head_dim], dtype=dtype, device=device),
                 "global_end_index": torch.tensor([0], dtype=torch.long, device=device),
                 "local_end_index": torch.tensor([0], dtype=torch.long, device=device)
             })
@@ -258,11 +249,15 @@ class SelfForcingTrainingPipeline:
         Initialize a Per-GPU cross-attention cache for the Wan model.
         """
         crossattn_cache = []
+        
+        # Get num_heads and head_dim from the model dynamically
+        num_heads = self.generator.model.num_heads
+        head_dim = self.generator.model.dim // num_heads
 
         for _ in range(self.num_transformer_blocks):
             crossattn_cache.append({
-                "k": torch.zeros([batch_size, 512, 12, 128], dtype=dtype, device=device),
-                "v": torch.zeros([batch_size, 512, 12, 128], dtype=dtype, device=device),
+                "k": torch.zeros([batch_size, 512, num_heads, head_dim], dtype=dtype, device=device),
+                "v": torch.zeros([batch_size, 512, num_heads, head_dim], dtype=dtype, device=device),
                 "is_init": False
             })
         self.crossattn_cache = crossattn_cache

@@ -1,6 +1,4 @@
-# download from https://github.com/guandeh17/Self-Forcing/tree/main
-
-
+# download from https://github.com/guandeh17/Self-Forcing
 from abc import ABC, abstractmethod
 import torch
 

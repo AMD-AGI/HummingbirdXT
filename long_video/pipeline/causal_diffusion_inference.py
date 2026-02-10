@@ -1,4 +1,4 @@
-# download from https://github.com/guandeh17/Self-Forcing/tree/main
+# download from https://github.com/guandeh17/Self-Forcing
 from tqdm import tqdm
 from typing import List, Optional
 import torch
@@ -280,17 +280,21 @@ class CausalDiffusionInferencePipeline(torch.nn.Module):
         else:
             # Use the default KV cache size
             kv_cache_size = 32760
+        
+        # Get num_heads and head_dim from the model dynamically
+        num_heads = self.generator.model.num_heads
+        head_dim = self.generator.model.dim // num_heads
 
         for _ in range(self.num_transformer_blocks):
             kv_cache_pos.append({
-                "k": torch.zeros([batch_size, kv_cache_size, 12, 128], dtype=dtype, device=device),
-                "v": torch.zeros([batch_size, kv_cache_size, 12, 128], dtype=dtype, device=device),
+                "k": torch.zeros([batch_size, kv_cache_size, num_heads, head_dim], dtype=dtype, device=device),
+                "v": torch.zeros([batch_size, kv_cache_size, num_heads, head_dim], dtype=dtype, device=device),
                 "global_end_index": torch.tensor([0], dtype=torch.long, device=device),
                 "local_end_index": torch.tensor([0], dtype=torch.long, device=device)
             })
             kv_cache_neg.append({
-                "k": torch.zeros([batch_size, kv_cache_size, 12, 128], dtype=dtype, device=device),
-                "v": torch.zeros([batch_size, kv_cache_size, 12, 128], dtype=dtype, device=device),
+                "k": torch.zeros([batch_size, kv_cache_size, num_heads, head_dim], dtype=dtype, device=device),
+                "v": torch.zeros([batch_size, kv_cache_size, num_heads, head_dim], dtype=dtype, device=device),
                 "global_end_index": torch.tensor([0], dtype=torch.long, device=device),
                 "local_end_index": torch.tensor([0], dtype=torch.long, device=device)
             })
@@ -304,15 +308,20 @@ class CausalDiffusionInferencePipeline(torch.nn.Module):
         """
         crossattn_cache_pos = []
         crossattn_cache_neg = []
+        
+        # Get num_heads and head_dim from the model dynamically
+        num_heads = self.generator.model.num_heads
+        head_dim = self.generator.model.dim // num_heads
+        
         for _ in range(self.num_transformer_blocks):
             crossattn_cache_pos.append({
-                "k": torch.zeros([batch_size, 512, 12, 128], dtype=dtype, device=device),
-                "v": torch.zeros([batch_size, 512, 12, 128], dtype=dtype, device=device),
+                "k": torch.zeros([batch_size, 512, num_heads, head_dim], dtype=dtype, device=device),
+                "v": torch.zeros([batch_size, 512, num_heads, head_dim], dtype=dtype, device=device),
                 "is_init": False
             })
             crossattn_cache_neg.append({
-                "k": torch.zeros([batch_size, 512, 12, 128], dtype=dtype, device=device),
-                "v": torch.zeros([batch_size, 512, 12, 128], dtype=dtype, device=device),
+                "k": torch.zeros([batch_size, 512, num_heads, head_dim], dtype=dtype, device=device),
+                "v": torch.zeros([batch_size, 512, num_heads, head_dim], dtype=dtype, device=device),
                 "is_init": False
             })
 

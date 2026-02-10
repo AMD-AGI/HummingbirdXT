@@ -1,11 +1,12 @@
-# Modifications Copyright(C)[2026] Advanced Micro Devices, Inc. All rights reserved.
-
+# download from https://github.com/guandeh17/Self-Forcing
 from .diffusion import Trainer as DiffusionTrainer
+from .gan import Trainer as GANTrainer
 from .ode import Trainer as ODETrainer
 from .distillation import Trainer as ScoreDistillationTrainer
 
 __all__ = [
     "DiffusionTrainer",
+    "GANTrainer",
     "ODETrainer",
     "ScoreDistillationTrainer"
 ]

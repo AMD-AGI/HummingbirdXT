@@ -1,5 +1,4 @@
-# dwonload from https://github.com/guandeh17/Self-Forcing/tree/main
-
+# download from https://github.com/guandeh17/Self-Forcing
 """
 python create_lmdb_14b_shards.py \
 --data_path /mnt/localssd/wanx_14b_data \

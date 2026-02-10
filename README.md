@@ -303,6 +303,7 @@ Several giant wooly mammoths approach treading through a snowy meadow, their lon
 ---
 
 ## 📝 News
+- __[2026.02.10]__: 🔥🔥Based on the Wan 2.2 5B model, we trained a 5B version of the Hummingbird-XTX long-video generation model, and have now open-sourced all the code and weights.
 - __[2026.01.09]__: 🔥🔥Release the full code and pre-trained weight of HummingbirdXT!
 - __[2026.01.08]__: 🔥🔥Release our Blog: [Bridging the Last Mile: Deploying Hummingbird-XT for Efficient Video Generation on AMD Consumer-Grade Platforms](https://rocm.blogs.amd.com/artificial-intelligence/hummingbirdxt/README.html) !
 
@@ -391,10 +392,18 @@ To use Lightweight VAE decoder in generation, add the below parameters after run
 ```
 
 ### HummingbirdXTX Long Video Generation
+For 5B model, you can run below commands:
 ```bash
 cd long_video
-bash run.sh
+bash infer.sh
 ```
+For 1.3B model, you can run this commamd:
+
+```
+cd long_video
+bash infer_1_3b.sh
+```
+
 ---
 
 

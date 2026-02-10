@@ -1,10 +1,10 @@
-# download from https://github.com/guandeh17/Self-Forcing/tree/main
+# download from https://github.com/guandeh17/Self-Forcing
 import torch.nn.functional as F
 from typing import Tuple
 import torch
 
 from model.base import BaseModel
-from utils.wan_wrapper import WanDiffusionWrapper, WanTextEncoder, WanVAEWrapper
+from utils.wan_wrapper import WanDiffusionWrapper, WanTextEncoder, WanVAEWrapper,Wan2_2_VAEWrapper
 
 
 class ODERegression(BaseModel):
@@ -19,6 +19,10 @@ class ODERegression(BaseModel):
         super().__init__(args, device)
 
         # Step 1: Initialize all models
+        print(f"args: {args}")
+        # print(f"model_kwargs: {getattr(args, "model_kwargs", {})}")
+        print(f"is_causal: {True}")
+        print(f"device: {device}")
 
         self.generator = WanDiffusionWrapper(**getattr(args, "model_kwargs", {}), is_causal=True)
         self.generator.model.requires_grad_(True)
@@ -44,14 +48,15 @@ class ODERegression(BaseModel):
         # Step 2: Initialize all hyperparameters
         self.timestep_shift = getattr(args, "timestep_shift", 1.0)
 
-    def _initialize_models(self, args):
+    def _initialize_models(self, args,device):
         self.generator = WanDiffusionWrapper(**getattr(args, "model_kwargs", {}), is_causal=True)
         self.generator.model.requires_grad_(True)
 
         self.text_encoder = WanTextEncoder()
         self.text_encoder.requires_grad_(False)
 
-        self.vae = WanVAEWrapper()
+        # self.vae = WanVAEWrapper()
+        self.vae = Wan2_2_VAEWrapper()
         self.vae.requires_grad_(False)
 
     @torch.no_grad()
@@ -85,7 +90,7 @@ class ODERegression(BaseModel):
                 -1, -1, -1, num_channels, height, width).to(self.device)
         ).squeeze(1)
 
-        timestep = self.denoising_step_list[index].to(self.device)
+        timestep = self.denoising_step_list[index.cpu()].to(self.device)
 
         # if self.extra_noise_step > 0:
         #     random_timestep = torch.randint(0, self.extra_noise_step, [
@@ -112,7 +117,7 @@ class ODERegression(BaseModel):
             - log_dict: a dictionary containing additional information for loss timestep breakdown.
         """
         # Step 1: Run generator on noisy latents
-        target_latent = ode_latent[:, -1]
+        target_latent = ode_latent[:, -1]  # target_latent: [batch_size, num_frames, num_channels, height, width]
 
         noisy_input, timestep = self._prepare_generator_input(
             ode_latent=ode_latent)

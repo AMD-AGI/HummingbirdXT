@@ -1,8 +1,13 @@
-# download from https://github.com/guandeh17/Self-Forcing/tree/main
+# Modifications Copyright(C)[2026] Advanced Micro Devices, Inc. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0 
+# ------------------------------------------------------------------------------------
+# Licensed under the Apache-2.0 License
+# ------------------------------------------------------------------------------------
+
 from typing import List, Optional
 import torch
 
-from utils.wan_wrapper import WanDiffusionWrapper, WanTextEncoder, WanVAEWrapper
+from utils.wan_wrapper import WanDiffusionWrapper, WanTextEncoder, WanVAEWrapper,Wan2_2_VAEWrapper
 
 from demo_utils.memory import gpu, get_cuda_free_memory_gb, DynamicSwapInstaller, move_model_to_device_with_memory_preservation
 
@@ -21,7 +26,14 @@ class CausalInferencePipeline(torch.nn.Module):
         self.generator = WanDiffusionWrapper(
             **getattr(args, "model_kwargs", {}), is_causal=True) if generator is None else generator
         self.text_encoder = WanTextEncoder() if text_encoder is None else text_encoder
-        self.vae = WanVAEWrapper() if vae is None else vae
+        # self.vae = WanVAEWrapper() if vae is None else vae
+        model_name = getattr(args, "model_kwargs", {}).get("model_name", "Wan2.2-TI2V-5B")
+        print(f"model_name: {model_name}")
+        if model_name == "Wan2.2-TI2V-5B":
+            self.vae = Wan2_2_VAEWrapper()
+        elif model_name == "Wan2.1-T2V-1.3B":
+            self.vae = WanVAEWrapper()
+
 
         # Step 2: Initialize all causal hyperparmeters
         self.scheduler = self.generator.get_scheduler()
@@ -31,8 +43,11 @@ class CausalInferencePipeline(torch.nn.Module):
             timesteps = torch.cat((self.scheduler.timesteps.cpu(), torch.tensor([0], dtype=torch.float32)))
             self.denoising_step_list = timesteps[1000 - self.denoising_step_list]
 
-        self.num_transformer_blocks = 30
-        self.frame_seq_length = 1560
+        self.num_transformer_blocks = self.generator.model.num_layers
+        if model_name == "Wan2.2-TI2V-5B":
+            self.frame_seq_length = (44//2)*(80//2) # Wan2.2-TI2V-5B: latents [B, F, 48, 44, 80] -> after patch (44//2)*(80//2) = 22*40 = 880
+        elif model_name == "Wan2.1-T2V-1.3B":
+            self.frame_seq_length = 1560 # Wan2.1-T2V-1.3B: latents [B, F, 16, 60, 104] -> after patch (60//2)*(104//2) = 30*52 = 1560
 
         self.kv_cache1 = None
         self.args = args
@@ -287,11 +302,15 @@ class CausalInferencePipeline(torch.nn.Module):
         else:
             # Use the default KV cache size
             kv_cache_size = 32760
+        
+        # Get num_heads and head_dim from the model dynamically
+        num_heads = self.generator.model.num_heads
+        head_dim = self.generator.model.dim // num_heads
 
         for _ in range(self.num_transformer_blocks):
             kv_cache1.append({
-                "k": torch.zeros([batch_size, kv_cache_size, 12, 128], dtype=dtype, device=device),
-                "v": torch.zeros([batch_size, kv_cache_size, 12, 128], dtype=dtype, device=device),
+                "k": torch.zeros([batch_size, kv_cache_size, num_heads, head_dim], dtype=dtype, device=device),
+                "v": torch.zeros([batch_size, kv_cache_size, num_heads, head_dim], dtype=dtype, device=device),
                 "global_end_index": torch.tensor([0], dtype=torch.long, device=device),
                 "local_end_index": torch.tensor([0], dtype=torch.long, device=device)
             })
@@ -303,11 +322,15 @@ class CausalInferencePipeline(torch.nn.Module):
         Initialize a Per-GPU cross-attention cache for the Wan model.
         """
         crossattn_cache = []
+        
+        # Get num_heads and head_dim from the model dynamically
+        num_heads = self.generator.model.num_heads
+        head_dim = self.generator.model.dim // num_heads
 
         for _ in range(self.num_transformer_blocks):
             crossattn_cache.append({
-                "k": torch.zeros([batch_size, 512, 12, 128], dtype=dtype, device=device),
-                "v": torch.zeros([batch_size, 512, 12, 128], dtype=dtype, device=device),
+                "k": torch.zeros([batch_size, 512, num_heads, head_dim], dtype=dtype, device=device),
+                "v": torch.zeros([batch_size, 512, num_heads, head_dim], dtype=dtype, device=device),
                 "is_init": False
             })
         self.crossattn_cache = crossattn_cache

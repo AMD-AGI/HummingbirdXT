@@ -1,5 +1,4 @@
-# download from https://github.com/guandeh17/Self-Forcing/tree/main
-
+# download from https://github.com/guandeh17/Self-Forcing
 from utils.lmdb import get_array_shape_from_lmdb, retrieve_row_from_lmdb
 from torch.utils.data import Dataset
 import numpy as np
@@ -42,6 +41,7 @@ class ODERegressionLMDBDataset(Dataset):
                              lock=False, readahead=False, meminit=False)
 
         self.latents_shape = get_array_shape_from_lmdb(self.env, 'latents')
+        print(f"latents_shape: {self.latents_shape}")
         self.max_pair = max_pair
 
     def __len__(self):
@@ -65,6 +65,8 @@ class ODERegressionLMDBDataset(Dataset):
             self.env,
             "prompts", str, idx
         )
+        # print(f"prompts: {prompts.shape}")
+        # print(f"latents: {latents.shape}")
         return {
             "prompts": prompts,
             "ode_latent": torch.tensor(latents, dtype=torch.float32)

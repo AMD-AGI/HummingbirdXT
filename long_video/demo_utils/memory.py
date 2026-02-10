@@ -1,4 +1,4 @@
-# download from https://github.com/guandeh17/Self-Forcing/tree/main
+# download form https://github.com/guandeh17/Self-Forcing/tree/main/demo_utils
 # Copied from https://github.com/lllyasviel/FramePack/tree/main/demo_utils
 # Apache-2.0 License
 # By lllyasviel

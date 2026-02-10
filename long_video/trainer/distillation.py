@@ -1,8 +1,11 @@
 # Modifications Copyright(C)[2026] Advanced Micro Devices, Inc. All rights reserved.
-
+# SPDX-License-Identifier: Apache-2.0 
+# ------------------------------------------------------------------------------------
+# Licensed under the Apache-2.0 License
+# ------------------------------------------------------------------------------------
 import gc
 import logging
-import shutil
+
 from utils.dataset import ShardingLMDBDataset, cycle
 from utils.dataset import TextDataset
 from utils.distributed import EMA_FSDP, fsdp_wrap, fsdp_state_dict, launch_distributed_job
@@ -17,7 +20,7 @@ import torch
 import wandb
 import time
 import os
-
+import shutil
 
 class Trainer:
     def __init__(self, config):
@@ -214,17 +217,21 @@ class Trainer:
                        f"checkpoint_model_{self.step:06d}", "model.pt"))
             print("Model saved to", os.path.join(self.output_path,
                   f"checkpoint_model_{self.step:06d}", "model.pt"))
-            
+
+            # 检查并清理旧的checkpoint文件夹，保证不超过3个
             try:
+                # 获取所有checkpoint文件夹
                 checkpoint_dirs = []
                 for item in os.listdir(self.output_path):
                     item_path = os.path.join(self.output_path, item)
                     if os.path.isdir(item_path) and item.startswith("checkpoint_model_"):
                         checkpoint_dirs.append(item)
                 
+                # 按文件夹名称排序（因为包含步数，所以按字母顺序排序即可）
                 checkpoint_dirs.sort()
                 
-                while len(checkpoint_dirs) > 5:
+                # 如果超过50个，删除最早的
+                while len(checkpoint_dirs) > 50:
                     oldest_dir = checkpoint_dirs.pop(0)
                     oldest_path = os.path.join(self.output_path, oldest_dir)
                     shutil.rmtree(oldest_path)
@@ -382,6 +389,7 @@ class Trainer:
                 self.critic_optimizer.zero_grad(set_to_none=True)
 
             # Increment the step since we finished gradient update
+            print(f"Step: {self.step},Generator Loss: {generator_log_dict['generator_loss'].mean().item()},Critic Loss: {critic_log_dict['critic_loss'].mean().item()}")
             self.step += 1
 
             # Create EMA params (if not already created)

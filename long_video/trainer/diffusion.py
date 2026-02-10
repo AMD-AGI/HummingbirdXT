@@ -1,8 +1,8 @@
-# Modifications Copyright(C)[2026] Advanced Micro Devices, Inc. All rights reserved.
+# download from https://github.com/guandeh17/Self-Forcing
 
 import gc
 import logging
-import shutil
+
 from model import CausalDiffusion
 from utils.dataset import ShardingLMDBDataset, cycle
 from utils.misc import set_seed
@@ -161,23 +161,6 @@ class Trainer:
                        f"checkpoint_model_{self.step:06d}", "model.pt"))
             print("Model saved to", os.path.join(self.output_path,
                   f"checkpoint_model_{self.step:06d}", "model.pt"))
-            
-            try:
-                checkpoint_dirs = []
-                for item in os.listdir(self.output_path):
-                    item_path = os.path.join(self.output_path, item)
-                    if os.path.isdir(item_path) and item.startswith("checkpoint_model_"):
-                        checkpoint_dirs.append(item)
-                
-                checkpoint_dirs.sort()
-                
-                while len(checkpoint_dirs) > 5:
-                    oldest_dir = checkpoint_dirs.pop(0)
-                    oldest_path = os.path.join(self.output_path, oldest_dir)
-                    shutil.rmtree(oldest_path)
-                    print(f"Removed old checkpoint: {oldest_path}")
-            except Exception as e:
-                print(f"Warning: Failed to clean old checkpoints: {e}")
 
     def train_one_step(self, batch):
         self.log_iters = 1

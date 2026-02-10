@@ -1,4 +1,8 @@
-# download from https://github.com/guandeh17/Self-Forcing/tree/main
+# Modifications Copyright(C)[2026] Advanced Micro Devices, Inc. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0 
+# ------------------------------------------------------------------------------------
+# Licensed under the Apache-2.0 License
+# ------------------------------------------------------------------------------------
 from pipeline import SelfForcingTrainingPipeline
 import torch.nn.functional as F
 from typing import Optional, Tuple

@@ -1,3 +1,8 @@
+# Modifications Copyright(C)[2026] Advanced Micro Devices, Inc. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+# ------------------------------------------------------------------------------------
+# Licensed under the Apache-2.0 License
+# ------------------------------------------------------------------------------------
 independent_first_frame: false
 warp_denoising_step: false
 weight_decay: 0.01
@@ -10,8 +15,8 @@ gc_interval: 100
 context_noise: 0
 causal: true
 ckpt_step: 0
-prompt_name: MovieGenVideoBench
-prompt_path: prompts/MovieGenVideoBench.txt
+prompt_name: Vidprom
+prompt_path: prompts/vidprom_filtered_extended.txt
 eval_first_n: 64
 num_samples: 1
 height: 480

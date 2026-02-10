@@ -1,4 +1,8 @@
-# Modifications Copyright(C)[YEAR OF MODIFICATION] Advanced Micro Devices, Inc. All rights reserved.
+# Modifications Copyright(C)[2026] Advanced Micro Devices, Inc. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0
+# ------------------------------------------------------------------------------------
+# Licensed under the Apache-2.0 License
+# ------------------------------------------------------------------------------------
 import argparse
 import torch
 import os
@@ -22,12 +26,13 @@ from demo_utils.memory import gpu, get_cuda_free_memory_gb, DynamicSwapInstaller
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--config_path", type=str, help="Path to the config file")
+parser.add_argument("--model_name", type=str,default="Wan2.2-TI2V-5B", help="select which model to use")
 parser.add_argument("--checkpoint_path", type=str, help="Path to the checkpoint folder")
 parser.add_argument("--data_path", type=str, help="Path to the dataset")
 parser.add_argument("--extended_prompt_path", type=str, help="Path to the extended prompt")
 parser.add_argument("--output_folder", type=str, help="Output folder")
 parser.add_argument("--num_output_frames", type=int, default=21,
-                    help="1/4 of real num output frames")
+                    help="Number of overlap frames between sliding windows")
 parser.add_argument("--i2v", action="store_true", help="Whether to perform I2V (or T2V by default)")
 parser.add_argument("--use_ema", action="store_true", help="Whether to use EMA parameters")
 parser.add_argument("--seed", type=int, default=0, help="Random seed")
@@ -69,7 +74,13 @@ else:
     pipeline = CausalDiffusionInferencePipeline(config, device=device)
 
 if args.checkpoint_path:
-    state_dict = torch.load(args.checkpoint_path, map_location="cpu")
+    try:
+        state_dict = torch.load(args.checkpoint_path, map_location="cpu", weights_only=False)
+    except RuntimeError as e:
+        print(f"Error loading checkpoint: {e}")
+        print("The checkpoint file may be corrupted. Please check the file integrity.")
+        print(f"Checkpoint path: {args.checkpoint_path}")
+        raise
     # pipeline.generator.load_state_dict(state_dict['generator' if not args.use_ema else 'generator_ema'])
     try:
         state_dict = state_dict['generator' if not args.use_ema else 'generator_ema']
@@ -157,10 +168,14 @@ for i, batch_data in tqdm(enumerate(dataloader), disable=(local_rank != 0)):
         # Encode the input image as the first latent
         initial_latent = pipeline.vae.encode_to_latent(image).to(device=device, dtype=torch.bfloat16)
         initial_latent = initial_latent.repeat(args.num_samples, 1, 1, 1, 1)
-
-        sampled_noise = torch.randn(
-            [args.num_samples, args.num_output_frames - 1, 16, 60, 104], device=device, dtype=torch.bfloat16
-        )
+        if args.model_name == "Wan2.1-T2V-1.3B":
+            sampled_noise = torch.randn(
+                [args.num_samples, args.num_output_frames - 1, 16, 60, 104], device=device, dtype=torch.bfloat16
+            )
+        else:
+            sampled_noise = torch.randn(
+                [args.num_samples, args.num_output_frames - 1, 48, 44, 80], device=device, dtype=torch.bfloat16
+            )
     else:
         # For text-to-video, batch is just the text prompt
         prompt = batch['prompts'][0]
@@ -170,12 +185,16 @@ for i, batch_data in tqdm(enumerate(dataloader), disable=(local_rank != 0)):
         else:
             prompts = [prompt] * args.num_samples
         initial_latent = None
+        if args.model_name == "Wan2.1-T2V-1.3B":
+            sampled_noise = torch.randn(
+                [args.num_samples, args.num_output_frames, 16, 60, 104], device=device, dtype=torch.bfloat16
+            )
+        else:
+            sampled_noise = torch.randn(
+                [args.num_samples, args.num_output_frames, 48, 44, 80], device=device, dtype=torch.bfloat16
+            )
 
-        sampled_noise = torch.randn(
-            [args.num_samples, args.num_output_frames, 16, 60, 104], device=device, dtype=torch.bfloat16
-        )
-
-    # 
+    # Generate 81 frames
     video, latents = pipeline.inference(
         noise=sampled_noise,
         text_prompts=prompts,

@@ -1,7 +1,5 @@
-# Modifications Copyright(C)[2026] Advanced Micro Devices, Inc. All rights reserved.
-
+# download from https://github.com/guandeh17/Self-Forcing
 import gc
-import shutil
 import logging
 from utils.dataset import ODERegressionLMDBDataset, cycle
 from model import ODERegression
@@ -15,6 +13,7 @@ import torch
 import wandb
 import time
 import os
+import shutil
 
 from utils.distributed import barrier, fsdp_wrap, fsdp_state_dict, launch_distributed_job
 
@@ -22,6 +21,7 @@ from utils.distributed import barrier, fsdp_wrap, fsdp_state_dict, launch_distri
 class Trainer:
     def __init__(self, config):
         self.config = config
+        
         self.step = 0
 
         # Step 1: Initialize the distributed training environment (rank, seed, dtype, logging etc.)
@@ -49,14 +49,13 @@ class Trainer:
             wandb.login(host=config.wandb_host, key=config.wandb_key)
             wandb.init(
                 config=OmegaConf.to_container(config, resolve=True),
-                name=config.config_name,
+                name=config.model_name,
                 mode="online",
-                entity=config.wandb_entity,
                 project=config.wandb_project,
                 dir=config.wandb_save_dir
             )
 
-        self.output_path = config.logdir
+        self.output_path = config.output_path
 
         # Step 2: Initialize the model and optimizer
 
@@ -120,27 +119,34 @@ class Trainer:
 
     def save(self):
         print("Start gathering distributed model states...")
+        # print(f"config: {self.config}")
         generator_state_dict = fsdp_state_dict(
             self.model.generator)
         state_dict = {
             "generator": generator_state_dict
         }
-
         if self.is_main_process:
             os.makedirs(os.path.join(self.output_path,
                         f"checkpoint_model_{self.step:06d}"), exist_ok=True)
             torch.save(state_dict, os.path.join(self.output_path,
                        f"checkpoint_model_{self.step:06d}", "model.pt"))
             print("Model saved to", os.path.join(self.output_path,
-                  f"checkpoint_model_{self.step:06d}", "model.pt"))   
+                  f"checkpoint_model_{self.step:06d}", "model.pt"))
+            
+            # 检查并清理旧的checkpoint文件夹，保证不超过3个
             try:
+                # 获取所有checkpoint文件夹
                 checkpoint_dirs = []
                 for item in os.listdir(self.output_path):
                     item_path = os.path.join(self.output_path, item)
                     if os.path.isdir(item_path) and item.startswith("checkpoint_model_"):
-                        checkpoint_dirs.append(item)                
-                checkpoint_dirs.sort()               
-                while len(checkpoint_dirs) > 5:
+                        checkpoint_dirs.append(item)
+                
+                # 按文件夹名称排序（因为包含步数，所以按字母顺序排序即可）
+                checkpoint_dirs.sort()
+                
+                # 如果超过3个，删除最早的
+                while len(checkpoint_dirs) > 3:
                     oldest_dir = checkpoint_dirs.pop(0)
                     oldest_path = os.path.join(self.output_path, oldest_dir)
                     shutil.rmtree(oldest_path)

@@ -1,5 +1,6 @@
-# download from https://github.com/guandeh17/Self-Forcing/tree/main
+# download form https://github.com/guandeh17/Self-Forcing/tree/main/demo_utils
 import torch
+
 
 ZERO_VAE_CACHE = [
     torch.zeros(1, 16, 2, 60, 104),

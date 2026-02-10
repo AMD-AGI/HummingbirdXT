@@ -1,5 +1,8 @@
 # Modifications Copyright(C)[2026] Advanced Micro Devices, Inc. All rights reserved.
-
+# SPDX-License-Identifier: Apache-2.0 
+# ------------------------------------------------------------------------------------
+# Licensed under the Apache-2.0 License
+# ------------------------------------------------------------------------------------
 from wan.modules.attention import attention
 from wan.modules.model import (
     WanRMSNorm,
@@ -21,9 +24,7 @@ import copy
 import random
 import torch.distributed as dist
 
-# wan 1.3B model has a weird channel / head configurations and require max-autotune to work with flexattention
-# see https://github.com/pytorch/pytorch/issues/133254
-# change to default for other models
+
 flex_attention = torch.compile(
     flex_attention, dynamic=False, mode="max-autotune-no-cudagraphs")
 
@@ -119,91 +120,11 @@ class CausalWanSelfAttention(nn.Module):
 
         q, k, v = qkv_fn(x)
 
-        # if kv_cache is None:
-        #     # if it is teacher forcing training?
-        #     is_tf = (s == seq_lens[0].item() * 2)
-        #     if is_tf:
-        #         q_chunk = torch.chunk(q, 2, dim=1)
-        #         k_chunk = torch.chunk(k, 2, dim=1)
-        #         roped_query = []
-        #         roped_key = []
-        #         # rope should be same for clean and noisy parts
-        #         for ii in range(2):
-        #             rq = rope_apply(q_chunk[ii], grid_sizes, freqs).type_as(v)
-        #             rk = rope_apply(k_chunk[ii], grid_sizes, freqs).type_as(v)
-        #             roped_query.append(rq)
-        #             roped_key.append(rk)
-
-        #         roped_query = torch.cat(roped_query, dim=1)
-        #         roped_key = torch.cat(roped_key, dim=1)
-
-        #         padded_length = math.ceil(q.shape[1] / 128) * 128 - q.shape[1]
-        #         padded_roped_query = torch.cat(
-        #             [roped_query,
-        #              torch.zeros([q.shape[0], padded_length, q.shape[2], q.shape[3]],
-        #                          device=q.device, dtype=v.dtype)],
-        #             dim=1
-        #         )
-
-        #         padded_roped_key = torch.cat(
-        #             [roped_key, torch.zeros([k.shape[0], padded_length, k.shape[2], k.shape[3]],
-        #                                     device=k.device, dtype=v.dtype)],
-        #             dim=1
-        #         )
-
-        #         padded_v = torch.cat(
-        #             [v, torch.zeros([v.shape[0], padded_length, v.shape[2], v.shape[3]],
-        #                             device=v.device, dtype=v.dtype)],
-        #             dim=1
-        #         )
-
-        #         x = flex_attention(
-        #             query=padded_roped_query.transpose(2, 1),
-        #             key=padded_roped_key.transpose(2, 1),
-        #             value=padded_v.transpose(2, 1),
-        #             block_mask=block_mask
-        #         )[:, :, :-padded_length].transpose(2, 1)
-
-        #     else:
-        #         roped_query = rope_apply(q, grid_sizes, freqs).type_as(v)
-        #         roped_key = rope_apply(k, grid_sizes, freqs).type_as(v)
-
-        #         padded_length = math.ceil(q.shape[1] / 128) * 128 - q.shape[1]
-        #         padded_roped_query = torch.cat(
-        #             [roped_query,
-        #              torch.zeros([q.shape[0], padded_length, q.shape[2], q.shape[3]],
-        #                          device=q.device, dtype=v.dtype)],
-        #             dim=1
-        #         )
-
-        #         padded_roped_key = torch.cat(
-        #             [roped_key, torch.zeros([k.shape[0], padded_length, k.shape[2], k.shape[3]],
-        #                                     device=k.device, dtype=v.dtype)],
-        #             dim=1
-        #         )
-
-        #         padded_v = torch.cat(
-        #             [v, torch.zeros([v.shape[0], padded_length, v.shape[2], v.shape[3]],
-        #                             device=v.device, dtype=v.dtype)],
-        #             dim=1
-        #         )
-
-        #         x = flex_attention(
-        #             query=padded_roped_query.transpose(2, 1),
-        #             key=padded_roped_key.transpose(2, 1),
-        #             value=padded_v.transpose(2, 1),
-        #             block_mask=block_mask
-        #         )[:, :, :-padded_length].transpose(2, 1)
-        # else:
+        
         if True:
             frame_seqlen = math.prod(grid_sizes[0][1:]).item()
             current_start_frame = current_start // frame_seqlen
-            # roped_query = causal_rope_apply(
-            #     q, grid_sizes, freqs, start_frame=current_start_frame).type_as(v)
-            # roped_key = causal_rope_apply(
-            #     k, grid_sizes, freqs, start_frame=current_start_frame).type_as(v)
 
-            # current_end = current_start + roped_query.shape[1]
             current_end = current_start + q.shape[1]
             sink_tokens = self.sink_size * frame_seqlen
             # If we are using local attention and the current KV cache size is larger than the local attention size, we need to truncate the KV cache
@@ -237,11 +158,6 @@ class CausalWanSelfAttention(nn.Module):
             grid_sizes_kv = copy.deepcopy(grid_sizes)
             grid_sizes_kv[:, 0] = (sink_tokens + (local_end_index - max(sink_tokens, local_end_index - self.max_attention_size + sink_tokens))) // frame_seqlen
 
-            # x = attention(
-            #     roped_query,
-            #     kv_cache["k"][:, max(0, local_end_index - self.max_attention_size):local_end_index],
-            #     kv_cache["v"][:, max(0, local_end_index - self.max_attention_size):local_end_index]
-            # )
             if (self.sink_size > 1) and (local_end_index - self.max_attention_size + sink_tokens > sink_tokens):
                 random_sink_id = random.randint(0, self.sink_size - 1)
                 # sink_tokens = self.sink_size * frame_seqlen
@@ -597,16 +513,6 @@ class CausalWanModel(ModelMixin, ConfigMixin):
                 f" cache a block wise causal mask with block size of {num_frame_per_block} frames")
             print(block_mask)
 
-        # import imageio
-        # import numpy as np
-        # from torch.nn.attention.flex_attention import create_mask
-
-        # mask = create_mask(attention_mask, B=None, H=None, Q_LEN=total_length +
-        #                    padded_length, KV_LEN=total_length + padded_length, device=device)
-        # import cv2
-        # mask = cv2.resize(mask[0, 0].cpu().float().numpy(), (1024, 1024))
-        # imageio.imwrite("mask_%d.jpg" % (0), np.uint8(255. * mask))
-
         return block_mask
 
     @staticmethod
@@ -746,15 +652,6 @@ class CausalWanModel(ModelMixin, ConfigMixin):
                 f" cache a block wise causal mask with block size of {num_frame_per_block} frames")
             print(block_mask)
 
-        # import imageio
-        # import numpy as np
-        # from torch.nn.attention.flex_attention import create_mask
-
-        # mask = create_mask(attention_mask, B=None, H=None, Q_LEN=total_length +
-        #                    padded_length, KV_LEN=total_length + padded_length, device=device)
-        # import cv2
-        # mask = cv2.resize(mask[0, 0].cpu().float().numpy(), (1024, 1024))
-        # imageio.imwrite("mask_%d.jpg" % (0), np.uint8(255. * mask))
 
         return block_mask
 

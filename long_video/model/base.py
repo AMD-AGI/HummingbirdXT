@@ -1,4 +1,8 @@
-# download from https://github.com/guandeh17/Self-Forcing/tree/main
+# Modifications Copyright(C)[2026] Advanced Micro Devices, Inc. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0 
+# ------------------------------------------------------------------------------------
+# Licensed under the Apache-2.0 License
+# ------------------------------------------------------------------------------------
 from typing import Tuple
 from einops import rearrange
 from torch import nn
@@ -7,7 +11,7 @@ import torch
 
 from pipeline import SelfForcingTrainingPipeline
 from utils.loss import get_denoising_loss
-from utils.wan_wrapper import WanDiffusionWrapper, WanTextEncoder, WanVAEWrapper
+from utils.wan_wrapper import WanDiffusionWrapper, WanTextEncoder, WanVAEWrapper,Wan2_2_VAEWrapper
 
 
 class BaseModel(nn.Module):
@@ -25,8 +29,8 @@ class BaseModel(nn.Module):
                 self.denoising_step_list = timesteps[1000 - self.denoising_step_list]
 
     def _initialize_models(self, args, device):
-        self.real_model_name = getattr(args, "real_name", "Wan2.1-T2V-1.3B")
-        self.fake_model_name = getattr(args, "fake_name", "Wan2.1-T2V-1.3B")
+        self.real_model_name = getattr(args, "real_name", "Wan2.2-TI2V-5B")
+        self.fake_model_name = getattr(args, "fake_name", "Wan2.2-TI2V-5B")
 
         self.generator = WanDiffusionWrapper(**getattr(args, "model_kwargs", {}), is_causal=True)
         self.generator.model.requires_grad_(True)
@@ -40,7 +44,7 @@ class BaseModel(nn.Module):
         self.text_encoder = WanTextEncoder()
         self.text_encoder.requires_grad_(False)
 
-        self.vae = WanVAEWrapper()
+        self.vae = Wan2_2_VAEWrapper()
         self.vae.requires_grad_(False)
 
         self.scheduler = self.generator.get_scheduler()
@@ -61,7 +65,7 @@ class BaseModel(nn.Module):
         - If uniform_timestep, it will use the same timestep for all frames.
         - If not uniform_timestep, it will use a different timestep for each block.
         """
-        if uniform_timestep:
+        if uniform_timestep:     # uniform_timestep:False
             timestep = torch.randint(
                 min_timestep,
                 max_timestep,
@@ -90,8 +94,8 @@ class BaseModel(nn.Module):
                 timestep = torch.cat([timestep[:, 0:1], timestep_from_second], dim=1)
             else:
                 timestep = timestep.reshape(
-                    timestep.shape[0], -1, num_frame_per_block)
-                timestep[:, :, 1:] = timestep[:, :, 0:1]
+                    timestep.shape[0], -1, num_frame_per_block) # [2,10,3]
+                timestep[:, :, 1:] = timestep[:, :, 0:1] # 
                 timestep = timestep.reshape(timestep.shape[0], -1)
             return timestep
 
@@ -219,5 +223,6 @@ class SelfForcingModel(BaseModel):
             same_step_across_blocks=self.args.same_step_across_blocks,
             last_step_only=self.args.last_step_only,
             num_max_frames=self.num_training_frames,
-            context_noise=self.args.context_noise
+            context_noise=self.args.context_noise,
+            model_name= self.real_model_name
         )
