@@ -6,6 +6,6 @@
 *                            @AMD-AGI/AI-Algorithm
 
 # Stricter paths — leads must approve
-.github/CODEOWNERS           @AMD-AGI/AI-Algorithm/AdvancedHe
-/.github/workflows/          @AMD-AGI/AI-Algorithm/AdvancedHe
-/src/core/                   @AMD-AGI/AI-Algorithm/AdvancedHe
+.github/CODEOWNERS           @AMD-AGI/AI-Algorithm
+/.github/workflows/          @AMD-AGI/AI-Algorithm
+/src/core/                   @AMD-AGI/AI-Algorithm
