@@ -1,0 +1,11 @@
+# Default owner
+* @AdvancedHe
+
+# Source code owners
+/src/ @AdvancedHe
+
+# Documentation
+/docs/ @AdvancedHe
+
+# Config files
+*.yml @AdvancedHe
