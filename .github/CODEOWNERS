@@ -6,6 +6,6 @@
 *                            @AMD-AGI/brain-tio
 
 # Stricter paths — leads must approve
-.github/CODEOWNERS           @AMD-AGI/AI-Algorithm
-/.github/workflows/          @AMD-AGI/AI-Algorithm
-/src/core/                   @AMD-AGI/AI-Algorithm
+.github/CODEOWNERS           @AMD-AGI/AI-Algorithm/hecui
+/.github/workflows/          @AMD-AGI/AI-Algorithm/hecui
+/src/core/                   @AMD-AGI/AI-Algorithm/hecui
