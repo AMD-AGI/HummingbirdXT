@@ -1,0 +1,6 @@
+recursive-include turbodiffusion/ops *.cu
+recursive-include turbodiffusion/ops *.h
+recursive-include turbodiffusion/ops *.cuh
+recursive-include turbodiffusion/ops *.cpp
+recursive-include turbodiffusion/ops *.hpp
+recursive-include turbodiffusion/ops *.py

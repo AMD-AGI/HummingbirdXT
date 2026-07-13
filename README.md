@@ -303,6 +303,7 @@ Several giant wooly mammoths approach treading through a snowy meadow, their lon
 ---
 
 ## 📝 News
+- __[2026.07.13]__: 🔥🔥We present a ROCm-optimized implementation of video sparse attention (VSA) that delivers 1.37x and 1.33x speedups in the forward and backward passes, respectively, over the original FastVideo implementation on AMD Instinct MI325X GPUs.
 - __[2026.02.10]__: 🔥🔥Based on the Wan 2.2 5B model, we trained a 5B version of the Hummingbird-XTX long-video generation model, and have now open-sourced all the code and weights.
 - __[2026.01.09]__: 🔥🔥Release the full code and pre-trained weight of HummingbirdXT!
 - __[2026.01.08]__: 🔥🔥Release our Blog: [Bridging the Last Mile: Deploying Hummingbird-XT for Efficient Video Generation on AMD Consumer-Grade Platforms](https://rocm.blogs.amd.com/artificial-intelligence/hummingbirdxt/README.html) !
@@ -376,6 +377,12 @@ docker run -it \
 
 ## 🚀 Getting Started for Video Generation
 You can download the weights for all our models from our models' huggingface: [amd/HummingbirdXT](https://huggingface.co/amd/HummingbirdXT/tree/main).
+
+### Rocm-VSA
+```bash
+cd ./HummingbirdXT_VSA/train 
+bash running_scripts/train/dmd.sh 
+```
 
 ### HummingbirdXT Video Generation
 
